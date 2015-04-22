@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Getting Started</title>
+
+    <!--
+    -- Step: Configure dojo for asynchronous module loading
+    -->
+    <script>
+      var dojoConfig = {
+        async : true
+      };
+    </script>
+
+    <!--
+    -- Step: Reference the ArcGIS API for JavaScript and Esri CSS
+    -->
+    <link rel="stylesheet" href="http://js.arcgis.com/3.13/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="http://js.arcgis.com/3.13/esri/css/esri.css">
+    <script src="http://js.arcgis.com/3.13/"></script>
+
+    <!--
+    -- Step: Reference the gettingstarted.css file
+    -->
+    <link rel="stylesheet" href="css/gettingstarted.css"/>
+
+    <script>
+      /*
+       *  Step: Require the esri/map module and the dojo/domReady! plugin
+       */
+      require(["esri/map", "esri/arcgis/utils", "esri/geometry/webMercatorUtils", "dojo/on", "dojo/parser", "dijit/form/Button", "dojo/domReady!"],
+      function(Map, arcgisUtils, webMercatorUtils, on, parser) {
+
+        parser.parse();
+        arcgisUtils.createMap("4b314f81261946f5b6c5dc00c559457c","divMap", {
+          geometryServiceURL: "http://s1-support.cloud.eaglegis.co.nz/arcgis/rest/services/Utilities/Geometry/GeometryServer"
+        }).then(function(response){
+          //update the app
+          //dom.byId("title").innerHTML = response.itemInfo.item.title;
+          //dom.byId("subtitle").innerHTML = response.itemInfo.item.snippet;
+
+        var map = response.map;
+
+        on(map, "extent-change", function(evt) {
+          var Point = webMercatorUtils.xyToLngLat(evt.extent.getCenter().x, evt.extent.getCenter().y)
+          dojo.byId("results").innerHTML =
+          "Level: " + map.getLevel() + "<br>" +
+          "xmin : " + evt.extent.xmin + "<br>" +
+          "ymin : " + evt.extent.ymin + "<br>" +
+          "xmax : " + evt.extent.xmax + "<br>" +
+          "ymax : " + evt.extent.ymax + "<br>" +
+          "center: " + Point + "<br>"
+
+        });
+        on(dojo.byId("button"), "click", function(evt) {
+          console.log(map)
+          var select = dojo.byId("input").value
+          map.setBasemap(select)
+        });
+       });
+      });
+
+    </script>
+  </head>
+
+  <body class="claro">
+    <!--
+    -- Step: Create a <div> in which the Map will display
+    -->
+    <div id="divMap"></div>
+    <div id="controls">
+          <h3>Info</h3>
+          <div id="results">results</div>
+          <button data-dojo-type="dijit/form/Button" id="button">Switch Basemap</button>
+          <input data-dojo-type="dijit/form/TextBox" id="input"></input>
+          <div data-dojo-type="dijit/Tooltip" data-dojo-props="connectId:'input',position:['above']">
+            "streets" | "satellite" | "hybrid" | "topo" | "gray" | "dark-gray" | "oceans" | "national-geographic" | "terrain" | "osm"
+          </div>
+    </div>
+  </body>
+</html>
